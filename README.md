@@ -72,11 +72,13 @@ Game ini dibuat menggunakan:
 
 ---
 
-### 🕹️ Kontrol
-│ 🦠 BUG│ 🛡️ ANTIVIRUS │
-│ Gerak    : W / A / S / D │ Gerak    : ↑ / ↓ / ← / → │
-│ Tembak   : Space │  Tembak   : Ctrl (kiri/kanan) │
-│ Teleport : Shift │  Shield   : Enter │
+## 🕹️ Kontrol
+
+| 🦠 **BUG (Player 1)** | 🛡️ **ANTIVIRUS (Player 2)** |
+|----------------------|-----------------------------|
+| Gerak: **W / A / S / D** | Gerak: **↑ / ↓ / ← / →** |
+| Tembak: **Space** | Tembak: **Ctrl (kiri / kanan)** |
+| Teleport: **Shift** | Shield: **Enter** |
 
 ---
 
