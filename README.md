@@ -74,13 +74,10 @@ Game ini dibuat menggunakan:
 
 ## 🕹️ Kontrol
 
-┌────────────────────────────┬──────────────────────────────┐
 │        🦠 BUG              │       🛡️ ANTIVIRUS            │
-├────────────────────────────┼──────────────────────────────┤
 │  Gerak    : W / A / S / D  │  Gerak    : ↑ / ↓ / ← / →   │
 │  Tembak   : Space          │  Tembak   : Ctrl (kiri/kanan) │
 │  Teleport : Shift          │  Shield   : Enter             │
-└────────────────────────────┴──────────────────────────────┘
 
 ---
 
