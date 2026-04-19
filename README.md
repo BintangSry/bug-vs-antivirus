@@ -72,7 +72,7 @@ Game ini dibuat menggunakan:
 
 ---
 
-## 🕹️ Kontrol
+### 🕹️ Kontrol
 │ 🦠 BUG│ 🛡️ ANTIVIRUS │
 │ Gerak    : W / A / S / D │ Gerak    : ↑ / ↓ / ← / → │
 │ Tembak   : Space │  Tembak   : Ctrl (kiri/kanan) │
