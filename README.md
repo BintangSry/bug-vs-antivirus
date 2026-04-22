@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Orbitron&size=32&pause=1000&color=00FF88&center=true&vCenter=true&width=600&lines=🦠+BUG+vs+ANTIVIRUS+🛡️;2+Player+Duel+Arena;RPL+School+Fair+Project" alt="Typing SVG" />
-
 <br/>
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
@@ -76,15 +74,11 @@ Game ini dibuat menggunakan:
 
 ## 🕹️ Kontrol
 
-```
-┌────────────────────────────┬──────────────────────────────┐
-│        🦠 BUG              │       🛡️ ANTIVIRUS            │
-├────────────────────────────┼──────────────────────────────┤
-│  Gerak    : W / A / S / D  │  Gerak    : ↑ / ↓ / ← / →   │
-│  Tembak   : Space          │  Tembak   : Ctrl (kiri/kanan) │
-│  Teleport : Shift          │  Shield   : Enter             │
-└────────────────────────────┴──────────────────────────────┘
-```
+| 🦠 **BUG (Player 1)** | 🛡️ **ANTIVIRUS (Player 2)** |
+|----------------------|-----------------------------|
+| Gerak: **W / A / S / D** | Gerak: **↑ / ↓ / ← / →** |
+| Tembak: **Space** | Tembak: **Ctrl (kiri / kanan)** |
+| Teleport: **Shift** | Shield: **Enter** |
 
 ---
 
