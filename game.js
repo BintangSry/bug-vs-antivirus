@@ -8,18 +8,18 @@
 // ─────────────────────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────────────────────
-const GAME_DURATION  = 60;          // seconds
-const BUG_MAX_HP     = 80;
-const AV_MAX_HP      = 120;
-const BUG_SPEED      = 3.5;
-const AV_SPEED       = 2.2;
-const BULLET_SPEED   = 7;
-const AV_BULLET_SPEED= 5.5;
+const GAME_DURATION = 60;          // seconds
+const BUG_MAX_HP = 80;
+const AV_MAX_HP = 120;
+const BUG_SPEED = 3.5;
+const AV_SPEED = 2.2;
+const BULLET_SPEED = 7;
+const AV_BULLET_SPEED = 5.5;
 const BULLET_DMG_BUG = 8;          // bug's bullets deal
-const BULLET_DMG_AV  = 10;         // av's bullets deal
-const TELEPORT_CD    = 5000;       // ms
-const SHIELD_CD      = 10000;      // ms – shield cooldown
-const SHIELD_DUR     = 4000;       // ms – shield active duration
+const BULLET_DMG_AV = 10;         // av's bullets deal
+const TELEPORT_CD = 5000;       // ms
+const SHIELD_CD = 10000;      // ms – shield cooldown
+const SHIELD_DUR = 4000;       // ms – shield active duration
 const POWERUP_INTERVAL = 12000;    // ms
 const POWERUP_DURATION = 8000;     // ms
 
@@ -27,33 +27,33 @@ const POWERUP_DURATION = 8000;     // ms
 // DOM REFS
 // ─────────────────────────────────────────────────────────────
 const startScreen = document.getElementById('startScreen');
-const gameScreen  = document.getElementById('gameScreen');
-const winScreen   = document.getElementById('winScreen');
-const canvas      = document.getElementById('gameCanvas');
-const ctx         = canvas.getContext('2d');
+const gameScreen = document.getElementById('gameScreen');
+const winScreen = document.getElementById('winScreen');
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 const flashOverlay = document.getElementById('flashOverlay');
 
 // HUD refs
-const bugHpBar    = document.getElementById('bugHpBar');
-const avHpBar     = document.getElementById('avHpBar');
-const bugHpText   = document.getElementById('bugHpText');
-const avHpText    = document.getElementById('avHpText');
-const timerDisplay= document.getElementById('timerDisplay');
-const killFeed    = document.getElementById('killFeed');
-const statusMsg   = document.getElementById('statusMsg');
+const bugHpBar = document.getElementById('bugHpBar');
+const avHpBar = document.getElementById('avHpBar');
+const bugHpText = document.getElementById('bugHpText');
+const avHpText = document.getElementById('avHpText');
+const timerDisplay = document.getElementById('timerDisplay');
+const killFeed = document.getElementById('killFeed');
+const statusMsg = document.getElementById('statusMsg');
 const bugTeleportCd = document.getElementById('bugTeleportCd');
-const avScanCd    = document.getElementById('avScanCd');
+const avScanCd = document.getElementById('avScanCd');
 const bugTeleportCard = document.getElementById('bugTeleportCard');
-const avScanCard  = document.getElementById('avScanCard');
+const avScanCard = document.getElementById('avScanCard');
 
 // Win screen refs
-const winIcon     = document.getElementById('winIcon');
-const winTitle    = document.getElementById('winTitle');
+const winIcon = document.getElementById('winIcon');
+const winTitle = document.getElementById('winTitle');
 const winSubtitle = document.getElementById('winSubtitle');
-const winReason   = document.getElementById('winReason');
-const winBg       = document.getElementById('winBg');
-const bugFinalHp  = document.getElementById('bugFinalHp');
-const avFinalHp   = document.getElementById('avFinalHp');
+const winReason = document.getElementById('winReason');
+const winBg = document.getElementById('winBg');
+const bugFinalHp = document.getElementById('bugFinalHp');
+const avFinalHp = document.getElementById('avFinalHp');
 
 // ─────────────────────────────────────────────────────────────
 // AUDIO ENGINE (Web Audio API – no files needed)
@@ -66,7 +66,7 @@ function initAudio() {
 
 function playTone(freq, type, dur, vol = 0.3, startFreq = null, endFreq = null) {
   if (!audioCtx) return;
-  const osc  = audioCtx.createOscillator();
+  const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.connect(gain);
   gain.connect(audioCtx.destination);
@@ -81,29 +81,29 @@ function playTone(freq, type, dur, vol = 0.3, startFreq = null, endFreq = null) 
 }
 
 const SFX = {
-  bugShoot:     () => playTone(800, 'square', 0.08, 0.15, 800, 400),
-  avShoot:      () => playTone(300, 'sawtooth', 0.12, 0.2, 400, 200),
-  bugTeleport:  () => {
+  bugShoot: () => playTone(800, 'square', 0.08, 0.15, 800, 400),
+  avShoot: () => playTone(300, 'sawtooth', 0.12, 0.2, 400, 200),
+  bugTeleport: () => {
     playTone(1200, 'sine', 0.3, 0.25, 1200, 2400);
     setTimeout(() => playTone(2400, 'sine', 0.2, 0.2, 2400, 4800), 150);
   },
-  avShieldUp:   () => {
+  avShieldUp: () => {
     // Rising crystalline chord – shield raise
-    playTone(440,  'sine',     0.4, 0.25, 440, 880);
-    playTone(554,  'triangle', 0.4, 0.18, 554, 1108);
+    playTone(440, 'sine', 0.4, 0.25, 440, 880);
+    playTone(554, 'triangle', 0.4, 0.18, 554, 1108);
     setTimeout(() => playTone(880, 'sine', 0.3, 0.2, 880, 1760), 100);
   },
-  avShieldBreak:() => {
+  avShieldBreak: () => {
     // Shattering glass descend
     playTone(1200, 'sawtooth', 0.25, 0.3, 1200, 200);
     setTimeout(() => playTone(600, 'square', 0.2, 0.25, 600, 100), 100);
   },
-  shieldBlock:  () => playTone(800, 'triangle', 0.06, 0.2, 800, 1200),
-  hit:          (isBig = false) => playTone(isBig ? 200 : 350, 'square', 0.1, isBig ? 0.35 : 0.2),
-  powerup:      () => { playTone(523, 'sine', 0.1, 0.3); setTimeout(() => playTone(659, 'sine', 0.1, 0.3), 100); setTimeout(() => playTone(784, 'sine', 0.2, 0.3), 200); },
-  winBug:       () => { [523,659,784,1047].forEach((f,i) => setTimeout(() => playTone(f,'sine',0.3,0.4), i*120)); },
-  winAV:        () => { [392,494,587,784].forEach((f,i) => setTimeout(() => playTone(f,'sawtooth',0.3,0.4), i*120)); },
-  timeTick:     () => playTone(440, 'sine', 0.05, 0.15),
+  shieldBlock: () => playTone(800, 'triangle', 0.06, 0.2, 800, 1200),
+  hit: (isBig = false) => playTone(isBig ? 200 : 350, 'square', 0.1, isBig ? 0.35 : 0.2),
+  powerup: () => { playTone(523, 'sine', 0.1, 0.3); setTimeout(() => playTone(659, 'sine', 0.1, 0.3), 100); setTimeout(() => playTone(784, 'sine', 0.2, 0.3), 200); },
+  winBug: () => { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.3, 0.4), i * 120)); },
+  winAV: () => { [392, 494, 587, 784].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.3, 0.4), i * 120)); },
+  timeTick: () => playTone(440, 'sine', 0.05, 0.15),
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -119,7 +119,7 @@ let lastTime = 0;
 // ─────────────────────────────────────────────────────────────
 function resizeCanvas() {
   const container = canvas.parentElement;
-  canvas.width  = container.clientWidth;
+  canvas.width = container.clientWidth;
   canvas.height = container.clientHeight;
   if (state.running) buildObstacles();
 }
@@ -132,19 +132,19 @@ function buildObstacles() {
   const W = canvas.width, H = canvas.height;
   state.obstacles = [
     // Center server rack (big)
-    { x: W/2 - 50, y: H/2 - 80, w: 100, h: 160, type: 'server' },
+    { x: W / 2 - 50, y: H / 2 - 80, w: 100, h: 160, type: 'server' },
     // Top-left firewall
-    { x: W * 0.15, y: H * 0.2,  w: 60,  h: 100, type: 'firewall' },
+    { x: W * 0.15, y: H * 0.2, w: 60, h: 100, type: 'firewall' },
     // Top-right firewall
-    { x: W * 0.75, y: H * 0.2,  w: 60,  h: 100, type: 'firewall' },
+    { x: W * 0.75, y: H * 0.2, w: 60, h: 100, type: 'firewall' },
     // Bottom-left server
-    { x: W * 0.15, y: H * 0.65, w: 80,  h: 60,  type: 'server' },
+    { x: W * 0.15, y: H * 0.65, w: 80, h: 60, type: 'server' },
     // Bottom-right server
-    { x: W * 0.7,  y: H * 0.65, w: 80,  h: 60,  type: 'server' },
+    { x: W * 0.7, y: H * 0.65, w: 80, h: 60, type: 'server' },
     // Mid-left short wall
-    { x: W * 0.3,  y: H * 0.4,  w: 40,  h: 80,  type: 'wall' },
+    { x: W * 0.3, y: H * 0.4, w: 40, h: 80, type: 'wall' },
     // Mid-right short wall
-    { x: W * 0.6,  y: H * 0.4,  w: 40,  h: 80,  type: 'wall' },
+    { x: W * 0.6, y: H * 0.4, w: 40, h: 80, type: 'wall' },
   ];
 }
 
@@ -219,7 +219,7 @@ function circleRect(cx, cy, cr, rx, ry, rw, rh) {
   const nearX = Math.max(rx, Math.min(cx, rx + rw));
   const nearY = Math.max(ry, Math.min(cy, ry + rh));
   const dx = cx - nearX, dy = cy - nearY;
-  return dx*dx + dy*dy < cr*cr;
+  return dx * dx + dy * dy < cr * cr;
 }
 
 function clampToArena(entity) {
@@ -232,19 +232,19 @@ function clampToArena(entity) {
 function resolveObstacles(entity) {
   for (const ob of state.obstacles) {
     if (rectOverlap(
-      entity.x - entity.w/2, entity.y - entity.h/2, entity.w, entity.h,
+      entity.x - entity.w / 2, entity.y - entity.h / 2, entity.w, entity.h,
       ob.x, ob.y, ob.w, ob.h
     )) {
       // Push out – find smallest overlap
-      const left  = (entity.x + entity.w/2) - ob.x;
-      const right = (ob.x + ob.w) - (entity.x - entity.w/2);
-      const top   = (entity.y + entity.h/2) - ob.y;
-      const bot   = (ob.y + ob.h) - (entity.y - entity.h/2);
-      const min   = Math.min(left, right, top, bot);
-      if      (min === left)  entity.x -= left;
+      const left = (entity.x + entity.w / 2) - ob.x;
+      const right = (ob.x + ob.w) - (entity.x - entity.w / 2);
+      const top = (entity.y + entity.h / 2) - ob.y;
+      const bot = (ob.y + ob.h) - (entity.y - entity.h / 2);
+      const min = Math.min(left, right, top, bot);
+      if (min === left) entity.x -= left;
       else if (min === right) entity.x += right;
-      else if (min === top)   entity.y -= top;
-      else                    entity.y += bot;
+      else if (min === top) entity.y -= top;
+      else entity.y += bot;
     }
   }
 }
@@ -263,8 +263,8 @@ function moveBug(dt) {
   const len = Math.hypot(dx, dy);
   if (len > 0) {
     const spd = b.speed * (b.powerup === 'speed' ? 1.6 : 1);
-    dx = dx/len * spd;
-    dy = dy/len * spd;
+    dx = dx / len * spd;
+    dy = dy / len * spd;
     b.x += dx; b.y += dy;
     b.angle = Math.atan2(dy, dx);
   }
@@ -275,15 +275,15 @@ function moveBug(dt) {
 function moveAV(dt) {
   const a = state.av;
   let dx = 0, dy = 0;
-  if (keysDown['ArrowUp'])    dy -= 1;
-  if (keysDown['ArrowDown'])  dy += 1;
-  if (keysDown['ArrowLeft'])  dx -= 1;
+  if (keysDown['ArrowUp']) dy -= 1;
+  if (keysDown['ArrowDown']) dy += 1;
+  if (keysDown['ArrowLeft']) dx -= 1;
   if (keysDown['ArrowRight']) dx += 1;
   const len = Math.hypot(dx, dy);
   if (len > 0) {
     const spd = a.speed * (a.powerup === 'speed' ? 1.6 : 1);
-    dx = dx/len * spd;
-    dy = dy/len * spd;
+    dx = dx / len * spd;
+    dy = dy / len * spd;
     a.x += dx; a.y += dy;
     a.angle = Math.atan2(dy, dx);
   }
@@ -325,7 +325,7 @@ function handleShooting(dt) {
 
   // AV shoot – Ctrl
   a.shootCd = Math.max(0, a.shootCd - dt);
-  if ((keysDown['ControlRight'] || keysDown['ControlLeft']) && a.shootCd <= 0) {
+  if ((keysDown['ShiftRight']) && a.shootCd <= 0) {
     a.shootCd = 400;
     const ang = Math.atan2(b.y - a.y, b.x - a.x);
     spawnBullet('av', a.x, a.y, ang, AV_BULLET_SPEED * (a.powerup === 'attack' ? 1.4 : 1),
@@ -379,9 +379,9 @@ function handleShield() {
   if (a.shieldCd > 0 || a.shieldActive) return;
 
   a.shieldActive = true;
-  a.shieldTimer  = SHIELD_DUR;
-  a.shieldCd     = a.shieldMax;
-  a.invincible   = SHIELD_DUR;  // full immunity for shield duration
+  a.shieldTimer = SHIELD_DUR;
+  a.shieldCd = a.shieldMax;
+  a.invincible = SHIELD_DUR;  // full immunity for shield duration
 
   // Spawn expanding ring burst visual
   state.shieldEffect = {
@@ -450,7 +450,7 @@ function updateBullets(dt) {
     // Hit bug
     if (bl.owner === 'av') {
       const dx = bl.x - b.x, dy = bl.y - b.y;
-      if (Math.hypot(dx, dy) < bl.r + b.w/2 && b.invincible <= 0 && !b.isTeleporting) {
+      if (Math.hypot(dx, dy) < bl.r + b.w / 2 && b.invincible <= 0 && !b.isTeleporting) {
         dealDamage('bug', bl.dmg);
         spawnParticles(bl.x, bl.y, 8, '#ff3366', 4, 70);
         state.bullets.splice(i, 1);
@@ -461,7 +461,7 @@ function updateBullets(dt) {
     // Hit AV
     if (bl.owner === 'bug') {
       const dx = bl.x - a.x, dy = bl.y - a.y;
-      if (Math.hypot(dx, dy) < bl.r + a.w/2 && a.invincible <= 0) {
+      if (Math.hypot(dx, dy) < bl.r + a.w / 2 && a.invincible <= 0) {
         dealDamage('av', bl.dmg);
         spawnParticles(bl.x, bl.y, 8, '#ff6600', 4, 70);
         state.bullets.splice(i, 1);
@@ -533,7 +533,7 @@ function updatePowerups(dt) {
 
     const pick = (entity, who) => {
       const dx = pu.x - entity.x, dy = pu.y - entity.y;
-      if (Math.hypot(dx, dy) < pu.r + entity.w/2) {
+      if (Math.hypot(dx, dy) < pu.r + entity.w / 2) {
         applyPowerup(entity, who, pu.type);
         spawnParticles(pu.x, pu.y, 20, powerupColor(pu.type), 5, 80);
         SFX.powerup();
@@ -568,19 +568,19 @@ function applyPowerup(entity, who, type) {
 }
 
 function powerupColor(type) {
-  return { hp:'#ff4488', speed:'#ffdd00', attack:'#ff5500', shield:'#88aaff' }[type] || '#fff';
+  return { hp: '#ff4488', speed: '#ffdd00', attack: '#ff5500', shield: '#88aaff' }[type] || '#fff';
 }
 function powerupLabel(type) {
   // Text labels that render reliably in canvas (no emoji needed)
-  return { hp:'HP', speed:'SPD', attack:'ATK', shield:'DEF' }[type] || '?';
+  return { hp: 'HP', speed: 'SPD', attack: 'ATK', shield: 'DEF' }[type] || '?';
 }
 function powerupIcon(type) {
   // Used in DOM elements – emoji OK here
-  return { hp:'+HP', speed:'SPD', attack:'ATK', shield:'DEF' }[type] || '?';
+  return { hp: '+HP', speed: 'SPD', attack: 'ATK', shield: 'DEF' }[type] || '?';
 }
 function powerupMsg(type, who) {
   const w = who === 'bug' ? 'BUG' : 'ANTIVIRUS';
-  const msgs = { hp:`${w} +HP!`, speed:`${w} SPEED UP!`, attack:`${w} POWER UP!`, shield:`${w} SHIELD!` };
+  const msgs = { hp: `${w} +HP!`, speed: `${w} SPEED UP!`, attack: `${w} POWER UP!`, shield: `${w} SHIELD!` };
   return msgs[type] || '';
 }
 
@@ -607,7 +607,7 @@ function updateShieldEffect(dt) {
     const sf = state.shieldEffect;
     let anyAlive = false;
     for (const ring of sf.rings) {
-      ring.r     += 5;
+      ring.r += 5;
       ring.alpha -= 0.04;
       if (ring.alpha > 0) anyAlive = true;
     }
@@ -645,13 +645,13 @@ function updateCooldowns(dt) {
     b.teleportCd = Math.max(0, b.teleportCd - dt);
     const pct = b.teleportCd / b.teleportMax;
     bugTeleportCard.style.opacity = pct > 0 ? 0.5 : 1;
-    bugTeleportCd.textContent = b.teleportCd > 0 ? (b.teleportCd/1000).toFixed(1)+'s' : '';
+    bugTeleportCd.textContent = b.teleportCd > 0 ? (b.teleportCd / 1000).toFixed(1) + 's' : '';
   }
   if (a.shieldCd > 0) {
     a.shieldCd = Math.max(0, a.shieldCd - dt);
     const pct = a.shieldCd / a.shieldMax;
     avScanCard.style.opacity = pct > 0 ? 0.5 : 1;
-    avScanCd.textContent = a.shieldCd > 0 ? (a.shieldCd/1000).toFixed(1)+'s' : '' ;
+    avScanCd.textContent = a.shieldCd > 0 ? (a.shieldCd / 1000).toFixed(1) + 's' : '';
   }
   if (b.invincible > 0) b.invincible = Math.max(0, b.invincible - dt);
   // AV invincible ticks normally (shield manages its own timer)
@@ -665,16 +665,16 @@ function updateHUD() {
   const b = state.bug, a = state.av;
   const bPct = (b.hp / b.maxHp) * 100;
   const aPct = (a.hp / a.maxHp) * 100;
-  bugHpBar.style.width  = bPct + '%';
-  avHpBar.style.width   = aPct + '%';
+  bugHpBar.style.width = bPct + '%';
+  avHpBar.style.width = aPct + '%';
   bugHpText.textContent = `${b.hp}/${b.maxHp}`;
-  avHpText.textContent  = `${a.hp}/${a.maxHp}`;
+  avHpText.textContent = `${a.hp}/${a.maxHp}`;
 
   // Color shifts for low HP
   if (bPct < 30) bugHpBar.style.background = 'linear-gradient(90deg,#ff3366,#ff6600)';
-  else           bugHpBar.style.background = 'linear-gradient(90deg,#00ff88,#39ff14)';
-  if (aPct < 30) avHpBar.style.background  = 'linear-gradient(90deg,#ff3366,#ff6600)';
-  else           avHpBar.style.background  = 'linear-gradient(90deg,#0044ff,#00aaff)';
+  else bugHpBar.style.background = 'linear-gradient(90deg,#00ff88,#39ff14)';
+  if (aPct < 30) avHpBar.style.background = 'linear-gradient(90deg,#ff3366,#ff6600)';
+  else avHpBar.style.background = 'linear-gradient(90deg,#0044ff,#00aaff)';
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -727,24 +727,24 @@ function drawArena() {
   ctx.fillStyle = '#0a3060';
   for (let x = 0; x < W; x += gs) {
     for (let y = 0; y < H; y += gs) {
-      ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
     }
   }
 
   // Arena border neon
   const edgeGrad = ctx.createLinearGradient(0, 0, W, H);
-  edgeGrad.addColorStop(0,   '#00ff8833');
+  edgeGrad.addColorStop(0, '#00ff8833');
   edgeGrad.addColorStop(0.5, '#00aaff33');
-  edgeGrad.addColorStop(1,   '#00ff8833');
+  edgeGrad.addColorStop(1, '#00ff8833');
   ctx.strokeStyle = edgeGrad;
   ctx.lineWidth = 4;
-  ctx.strokeRect(2, 2, W-4, H-4);
+  ctx.strokeRect(2, 2, W - 4, H - 4);
 
   // Corner accents
-  const corners = [[0,0,1,1],[W,0,-1,1],[0,H,1,-1],[W,H,-1,-1]];
+  const corners = [[0, 0, 1, 1], [W, 0, -1, 1], [0, H, 1, -1], [W, H, -1, -1]];
   ctx.strokeStyle = '#00ff88aa'; ctx.lineWidth = 3;
-  corners.forEach(([cx,cy,sx,sy]) => {
-    ctx.beginPath(); ctx.moveTo(cx + sx*30, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + sy*30); ctx.stroke();
+  corners.forEach(([cx, cy, sx, sy]) => {
+    ctx.beginPath(); ctx.moveTo(cx + sx * 30, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + sy * 30); ctx.stroke();
   });
 }
 
@@ -760,7 +760,7 @@ function drawObstacles() {
 function drawServer(ob) {
   const { x, y, w, h } = ob;
   // Body
-  const g = ctx.createLinearGradient(x, y, x+w, y+h);
+  const g = ctx.createLinearGradient(x, y, x + w, y + h);
   g.addColorStop(0, '#0d2040');
   g.addColorStop(1, '#1a3860');
   ctx.fillStyle = g;
@@ -781,7 +781,7 @@ function drawServer(ob) {
   for (let i = 0; i < slots; i++) {
     const ly = y + 8 + i * 18;
     ctx.fillStyle = (Math.sin(Date.now() * 0.003 + i) > 0.5) ? '#00ff88' : '#003311';
-    ctx.beginPath(); ctx.arc(x + 12, ly, 3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x + 12, ly, 3, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#1a4080';
     ctx.fillRect(x + 20, ly - 3, w - 30, 6);
   }
@@ -791,7 +791,7 @@ function drawFirewall(ob) {
   const { x, y, w, h } = ob;
   // Flame effect
   const t = Date.now() * 0.004;
-  const g = ctx.createLinearGradient(x, y+h, x, y);
+  const g = ctx.createLinearGradient(x, y + h, x, y);
   g.addColorStop(0, '#ff440088');
   g.addColorStop(0.5, '#ff880055');
   g.addColorStop(1, '#ffaa0011');
@@ -799,7 +799,7 @@ function drawFirewall(ob) {
   ctx.fillRect(x - 4, y - 8, w + 8, h + 8);
 
   // Core
-  const bg = ctx.createLinearGradient(x, y, x+w, y+h);
+  const bg = ctx.createLinearGradient(x, y, x + w, y + h);
   bg.addColorStop(0, '#200500');
   bg.addColorStop(1, '#400a00');
   ctx.fillStyle = bg;
@@ -818,8 +818,8 @@ function drawFirewall(ob) {
     const fx = x + (i / 3) * w;
     const fy = y - Math.abs(Math.sin(t + i)) * 15 - 5;
     const fr = 4 + Math.sin(t * 2 + i) * 2;
-    ctx.beginPath(); ctx.arc(fx, fy, fr, 0, Math.PI*2);
-    ctx.fillStyle = `hsla(${20 + i*10}, 100%, 60%, ${0.4 + Math.sin(t+i)*0.3})`;
+    ctx.beginPath(); ctx.arc(fx, fy, fr, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${20 + i * 10}, 100%, 60%, ${0.4 + Math.sin(t + i) * 0.3})`;
     ctx.fill();
   }
 
@@ -827,7 +827,7 @@ function drawFirewall(ob) {
   ctx.fillStyle = '#ff6600';
   ctx.font = 'bold 9px Orbitron, monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('FIREWALL', x + w/2, y + h/2 + 3);
+  ctx.fillText('FIREWALL', x + w / 2, y + h / 2 + 3);
 }
 
 function drawWall(ob) {
@@ -840,29 +840,29 @@ function drawWall(ob) {
 // Canvas roundRect helper
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
-  ctx.moveTo(x+r, y);
-  ctx.lineTo(x+w-r, y);
-  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-  ctx.lineTo(x+w, y+h-r);
-  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-  ctx.lineTo(x+r, y+h);
-  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-  ctx.lineTo(x, y+r);
-  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
 }
 
 // ── Bug character
 function drawBug(b) {
   const { x, y, w, angle, hp, maxHp, invincible, isTeleporting, powerup } = b;
-  if (isTeleporting && Math.floor(Date.now()/80) % 2 === 0) return; // blink when teleporting
+  if (isTeleporting && Math.floor(Date.now() / 80) % 2 === 0) return; // blink when teleporting
 
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
 
   const r = w / 2;
-  const alpha = invincible > 0 && Math.floor(Date.now()/60) % 2 === 0 ? 0.4 : 1;
+  const alpha = invincible > 0 && Math.floor(Date.now() / 60) % 2 === 0 ? 0.4 : 1;
   ctx.globalAlpha = alpha;
 
   // Powerup glow ring
@@ -871,7 +871,7 @@ function drawBug(b) {
     ctx.shadowBlur = 20;
     ctx.strokeStyle = powerupColor(powerup);
     ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(0, 0, r + 8, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, r + 8, 0, Math.PI * 2); ctx.stroke();
     ctx.shadowBlur = 0;
   }
 
@@ -885,7 +885,7 @@ function drawBug(b) {
   bodyGrad.addColorStop(0.5, '#00ee66');
   bodyGrad.addColorStop(1, '#005522');
   ctx.fillStyle = bodyGrad;
-  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
 
   // Virus spikes
   ctx.fillStyle = '#00cc55';
@@ -894,27 +894,27 @@ function drawBug(b) {
     const sa = (i / spikes) * Math.PI * 2;
     const sx = Math.cos(sa) * (r + 5);
     const sy = Math.sin(sa) * (r + 5);
-    ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(sx, sy, 4, 0, Math.PI * 2); ctx.fill();
   }
 
   // Eyes
   ctx.shadowBlur = 0;
   ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(-5, -4, 5, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc( 5, -4, 5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-5, -4, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(5, -4, 5, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#001100';
-  ctx.beginPath(); ctx.arc(-4, -3, 3, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc( 6, -3, 3, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-4, -3, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(6, -3, 3, 0, Math.PI * 2); ctx.fill();
   // Eye glow
   ctx.fillStyle = '#00ff88';
-  ctx.beginPath(); ctx.arc(-3.5, -2.5, 1, 0, Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.arc( 6.5, -2.5, 1, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(-3.5, -2.5, 1, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(6.5, -2.5, 1, 0, Math.PI * 2); ctx.fill();
 
   // Mouth (evil smile)
   ctx.strokeStyle = '#002200';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.arc(0, 4, 5, 0.1*Math.PI, 0.9*Math.PI);
+  ctx.arc(0, 4, 5, 0.1 * Math.PI, 0.9 * Math.PI);
   ctx.stroke();
 
   ctx.globalAlpha = 1;
@@ -931,7 +931,7 @@ function drawAV(a) {
   const r = w / 2;
   // Only blink when hit-invincible, NOT while shield is active
   const isShielding = a.shieldActive;
-  const blinkHit = invincible > 0 && !isShielding && Math.floor(Date.now()/60) % 2 === 0;
+  const blinkHit = invincible > 0 && !isShielding && Math.floor(Date.now() / 60) % 2 === 0;
   const alpha = blinkHit ? 0.4 : 1;
   ctx.globalAlpha = alpha;
 
@@ -941,7 +941,7 @@ function drawAV(a) {
     ctx.shadowBlur = 20;
     ctx.strokeStyle = powerupColor(powerup);
     ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(0, 0, r + 10, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, r + 10, 0, Math.PI * 2); ctx.stroke();
     ctx.shadowBlur = 0;
   }
 
@@ -991,7 +991,7 @@ function drawAV(a) {
   ctx.fillStyle = bodyGrad;
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
-    const ang = (i / 6) * Math.PI * 2 - Math.PI/6;
+    const ang = (i / 6) * Math.PI * 2 - Math.PI / 6;
     const px = Math.cos(ang) * r, py = Math.sin(ang) * r;
     i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
   }
@@ -1005,7 +1005,7 @@ function drawAV(a) {
 
   // Visor / scanner eye
   ctx.fillStyle = '#000022';
-  ctx.beginPath(); ctx.ellipse(0, -5, 10, 6, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, -5, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
   // Scan line
   const scanT = Date.now() * 0.005;
   const scanX = Math.sin(scanT) * 8;
@@ -1035,22 +1035,22 @@ function drawAV(a) {
 function drawBullets() {
   for (const bl of state.bullets) {
     const color = bl.owner === 'bug' ? '#00ff88' : '#00aaff';
-    const core  = bl.owner === 'bug' ? '#aaffcc' : '#aaddff';
+    const core = bl.owner === 'bug' ? '#aaffcc' : '#aaddff';
 
     // Trail
     for (let t = 0; t < bl.trail.length; t++) {
       const pt = bl.trail[t];
       const a = (t / bl.trail.length) * 0.5;
       ctx.beginPath();
-      ctx.arc(pt.x, pt.y, bl.r * (t / bl.trail.length) * 0.8, 0, Math.PI*2);
-      ctx.fillStyle = color + Math.floor(a * 255).toString(16).padStart(2,'0');
+      ctx.arc(pt.x, pt.y, bl.r * (t / bl.trail.length) * 0.8, 0, Math.PI * 2);
+      ctx.fillStyle = color + Math.floor(a * 255).toString(16).padStart(2, '0');
       ctx.fill();
     }
 
     // Core
     ctx.shadowColor = color;
-    ctx.shadowBlur  = 12;
-    ctx.beginPath(); ctx.arc(bl.x, bl.y, bl.r, 0, Math.PI*2);
+    ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.arc(bl.x, bl.y, bl.r, 0, Math.PI * 2);
     ctx.fillStyle = core; ctx.fill();
     ctx.shadowBlur = 0;
   }
@@ -1062,7 +1062,7 @@ function drawParticles() {
     const a = p.life / p.maxLife;
     ctx.globalAlpha = a;
     ctx.fillStyle = p.color;
-    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * a, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r * a, 0, Math.PI * 2); ctx.fill();
   }
   ctx.globalAlpha = 1;
 }
@@ -1076,26 +1076,26 @@ function drawPowerups() {
 
     // Outer ring
     ctx.shadowColor = color;
-    ctx.shadowBlur  = 20;
+    ctx.shadowBlur = 20;
     ctx.strokeStyle = color;
-    ctx.lineWidth   = 2;
-    ctx.beginPath(); ctx.arc(pu.x, pu.y, r + 8, 0, Math.PI*2); ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(pu.x, pu.y, r + 8, 0, Math.PI * 2); ctx.stroke();
 
     // Dark bg
     ctx.shadowBlur = 0;
     ctx.fillStyle = '#050a0f';
-    ctx.beginPath(); ctx.arc(pu.x, pu.y, r + 2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(pu.x, pu.y, r + 2, 0, Math.PI * 2); ctx.fill();
 
     // Colored fill
-    const pg = ctx.createRadialGradient(pu.x - r*0.3, pu.y - r*0.3, 1, pu.x, pu.y, r);
+    const pg = ctx.createRadialGradient(pu.x - r * 0.3, pu.y - r * 0.3, 1, pu.x, pu.y, r);
     pg.addColorStop(0, color + 'ee');
     pg.addColorStop(1, color + '44');
     ctx.fillStyle = pg;
-    ctx.beginPath(); ctx.arc(pu.x, pu.y, r, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(pu.x, pu.y, r, 0, Math.PI * 2); ctx.fill();
 
     // Text label (reliable across all browsers)
     ctx.shadowColor = '#000';
-    ctx.shadowBlur  = 4;
+    ctx.shadowBlur = 4;
     ctx.fillStyle = '#fff';
     ctx.font = `bold ${Math.round(r * 0.9)}px 'Orbitron', monospace`;
     ctx.textAlign = 'center';
@@ -1115,9 +1115,9 @@ function drawShieldEffect() {
     if (ring.alpha <= 0) continue;
     ctx.globalAlpha = ring.alpha * 0.8;
     ctx.strokeStyle = '#44aaff';
-    ctx.lineWidth   = 2.5;
+    ctx.lineWidth = 2.5;
     ctx.shadowColor = '#44aaff';
-    ctx.shadowBlur  = 18;
+    ctx.shadowBlur = 18;
     // Draw expanding hexagon ring
     ctx.beginPath();
     for (let i = 0; i < 6; i++) {
@@ -1135,7 +1135,7 @@ function drawShieldEffect() {
 function drawCharHP(entity, color, name) {
   const { x, y, w, h, hp, maxHp } = entity;
   const bw = w + 24, bh = 6;
-  const bx = x - bw/2, by = y - h/2 - 18;
+  const bx = x - bw / 2, by = y - h / 2 - 18;
   const pct = hp / maxHp;
 
   // Name label
@@ -1149,7 +1149,7 @@ function drawCharHP(entity, color, name) {
 
   // Bar background
   ctx.fillStyle = '#000000cc';
-  ctx.beginPath(); roundRect(ctx, bx-1, by-1, bw+2, bh+2, 4); ctx.fill();
+  ctx.beginPath(); roundRect(ctx, bx - 1, by - 1, bw + 2, bh + 2, 4); ctx.fill();
   ctx.fillStyle = '#111';
   ctx.beginPath(); roundRect(ctx, bx, by, bw, bh, 3); ctx.fill();
 
@@ -1211,33 +1211,33 @@ function endGame(winner) {
   timerDisplay.classList.remove('timer-warn');
 
   const bugHp = state.bug.hp;
-  const avHp  = state.av.hp;
+  const avHp = state.av.hp;
 
   setTimeout(() => {
     gameScreen.classList.add('hidden');
     winScreen.classList.remove('hidden');
 
     bugFinalHp.textContent = `HP: ${bugHp}/${BUG_MAX_HP}`;
-    avFinalHp.textContent  = `HP: ${avHp}/${AV_MAX_HP}`;
+    avFinalHp.textContent = `HP: ${avHp}/${AV_MAX_HP}`;
 
     if (winner === 'bug') {
-      winIcon.textContent  = '🦠';
+      winIcon.textContent = '🦠';
       winTitle.textContent = 'BUG MENANG!';
       winTitle.style.background = 'linear-gradient(135deg,#00ff88,#39ff14)';
       winTitle.style.webkitBackgroundClip = 'text';
-      winTitle.style.webkitTextFillColor  = 'transparent';
+      winTitle.style.webkitTextFillColor = 'transparent';
       winSubtitle.textContent = 'Bug berhasil bertahan dari serangan Antivirus!';
-      winReason.textContent   = 'Survived the full 60 seconds';
+      winReason.textContent = 'Survived the full 60 seconds';
       winBg.className = 'absolute inset-0 win-bug';
       SFX.winBug();
     } else {
-      winIcon.textContent  = '🛡️';
+      winIcon.textContent = '🛡️';
       winTitle.textContent = 'ANTIVIRUS MENANG!';
       winTitle.style.background = 'linear-gradient(135deg,#00aaff,#0044ff)';
       winTitle.style.webkitBackgroundClip = 'text';
-      winTitle.style.webkitTextFillColor  = 'transparent';
+      winTitle.style.webkitTextFillColor = 'transparent';
       winSubtitle.textContent = 'Antivirus berhasil mengeliminasi Bug!';
-      winReason.textContent   = 'Bug eliminated';
+      winReason.textContent = 'Bug eliminated';
       winBg.className = 'absolute inset-0 win-av';
       SFX.winAV();
     }
@@ -1251,13 +1251,13 @@ window.addEventListener('keydown', (e) => {
   keysDown[e.code] = true;
 
   // Prevent default for game keys
-  const gameCodes = ['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','ShiftLeft','ShiftRight','Enter','ControlLeft','ControlRight'];
+  const gameCodes = ['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft', 'ShiftRight', 'Enter'];
   if (gameCodes.includes(e.code)) e.preventDefault();
 
   if (!state.running) return;
 
   // Bug teleport – Shift
-  if ((e.code === 'ShiftLeft' || e.code === 'ShiftRight')) {
+  if ((e.code === 'ShiftLeft')) {
     handleTeleport();
   }
   // AV shield – Enter
